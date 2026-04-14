@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RZ ARCHIVE - NEON VOID</title>
+    
+    <style>
+        /* --- CONFIGURATION DU NÉANT ET NÉON --- */
+        :root { 
+            --neon-main: #ffffff;
+            --neon-glow-strong: 0 0 20px #fff, 0 0 40px #fff, 0 0 60px rgba(255,255,255,0.5);
+            --void-bg: #000000;
+        }
+        
+        body { 
+            background-color: var(--void-bg); color: #fff; font-family: 'Orbitron', sans-serif; 
+            margin: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent;
+        }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #000; pointer-events: none; }
+        
+        /* --- ANIMATIONS ACCUEIL --- */
+        @keyframes dropLogo { 0% { transform: translateY(-200px); opacity: 0; } 60% { transform: translateY(20px); opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeInText { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        #welcome-screen { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 5%; z-index: 500; }
+        
+        .welcome-logo-big { 
+            width: 140px; margin-bottom: 20px; animation: dropLogo 1.2s both; 
+            filter: drop-shadow(0 0 15px #fff); 
+        }
+        .welcome-title-main { font-size: clamp(2.5rem, 8vw, 4.5rem); letter-spacing: 10px; text-shadow: var(--neon-glow-strong); animation: fadeInText 0.8s ease-out 1.2s both; }
+        
+        .welcome-info-text { 
+            font-size: 1.1rem; font-weight: 900; color: #fff; margin: 25px 0; max-width: 600px; 
+            text-transform: uppercase; line-height: 1.5;
+            animation: slideUp 0.8s ease-out 1.8s both;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .social-links { display: flex; gap: 15px; margin: 30px 0; animation: slideUp 0.8s ease-out 2.2s both; }
+        .social-links a { 
+            color: #fff; text-decoration: none; font-size: 11px; border: 2px solid #fff; padding: 12px 20px; 
+            font-weight: bold; box-shadow: 0 0 15px rgba(255,255,255,0.2); 
+        }
+
+        .btn-next { 
+            padding: 25px 80px; background: #fff; color: #000; font-weight: 900; border: none; cursor: pointer; 
+            font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 5px; 
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            animation: slideUp 0.8s ease-out 2.6s both;
+            box-shadow: var(--neon-glow-strong);
+        }
+
+        /* --- BOUTIQUE / NAVIGATION --- */
+        #shop-content { display: none; width: 100%; }
+
+        nav { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            padding: 20px 5%; background: rgba(0, 0, 0, 0.98); border-bottom: 2px solid #fff; 
+            position: sticky; top: 0; z-index: 1000; gap: 15px;
+            box-shadow: 0 5px 30px rgba(0,0,0,1);
+        }
+
+        /* Barre de recherche au milieu */
+        .nav-top { display: flex; align-items: center; justify-content: center; width: 100%; gap: 20px; }
+        .search-container { width: 100%; max-width: 500px; }
+        .search-bar { 
+            width: 100%; padding: 12px 25px; background: #000; border: 2px solid #fff; color: #fff; 
+            border-radius: 30px; outline: none; font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+            box-sizing: border-box;
+        }
+
+        .category-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 15px 5%; }
+        .cat-filter { 
+            background: transparent; border: 1px solid #fff; color: #fff; padding: 8px 12px; 
+            cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 9px; 
+            box-shadow: 0 0 10px rgba(0,0,0,1);
+        }
+        .cat-filter.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
+
+        .container { padding: 20px 5%; }
+        .game-grid { display: grid; gap: 30px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+        
+        /* CADRES AVEC NÉON RÉEL */
+        .game-card { 
+            background: #000; border: 2px solid #fff; border-radius: 12px; 
+            overflow: hidden; display: flex; flex-direction: column; transition: 0.4s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1); 
+            animation: slideUp 0.6s ease-out both;
+        }
+        .game-card:hover { box-shadow: var(--neon-glow-strong); transform: translateY(-5px); }
+        .game-img { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid #333; }
+        .game-info { padding: 20px; text-align: center; }
+        .game-size-display { font-size: 24px; font-weight: 900; color: #fff; margin: 10px 0; text-shadow: 0 0 10px #fff; }
+        
+        /* BOUTON TÉLÉCHARGER NÉON */
+        .btn-download { 
+            width: 100%; padding: 18px; background: #fff; color: #000; font-weight: 900; border: none; 
+            font-family: 'Orbitron', sans-serif; cursor: pointer; text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+        /* FENÊTRE MODAL NÉON */
+        .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 3000; backdrop-filter: blur(5px); }
+        .payment-card { 
+            background: #000; padding: 35px; border: 3px solid #fff; width: 85%; max-width: 400px; text-align: center; 
+            box-shadow: var(--neon-glow-strong);
+        }
+        
+        footer { padding: 40px; text-align: center; font-size: 10px; opacity: 0.5; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="welcome-screen">
+        <svg class="welcome-logo-big" viewBox="0 0 100 100">
+            <path d="M80 35 Q90 35 90 45 L90 75 Q90 85 80 85 L65 85 Q60 85 55 80 L45 80 Q40 85 35 85 L20 85 Q10 85 10 75 L10 45 Q10 35 20 35 Z" stroke="white" stroke-width="3" fill="none"/>
+            <text x="50" y="62" font-family="Orbitron" font-size="28" fill="white" text-anchor="middle" font-weight="bold">RZ</text>
+        </svg>
+        <h1 class="welcome-title-main">RZ ARCHIVE</h1>
+        <p class="welcome-info-text">
+            ACCÈS ILLIMITÉ AUX ARCHIVES MOBILES PREMIUM.<br>
+            VOTRE SOURCE NUMÉRIQUE DE CONFIANCE.
+        </p>
+        <div class="social-links">
+            <a href="https://www.instagram.com" target="_blank">INSTAGRAM</a>
+            <a href="https://www.youtube.com" target="_blank">YOUTUBE</a>
+        </div>
+        <button class="btn-next" onclick="document.getElementById('welcome-screen').style.display='none'; document.getElementById('shop-content').style.display='block'; window.scrollTo(0,0);">ENTRER DANS LE VIDE</button>
+    </div>
+
+    <div id="shop-content">
+        <nav>
+            <div class="nav-top">
+                <svg width="40" height="40" viewBox="0 0 100 100"><path d="M80 35 Q90 35 90 45 L90 75 Q90 85 80 85 L65 85 Q60 85 55 80 L45 80 Q40 85 35 85 L20 85 Q10 85 10 75 L10 45 Q10 35 20 35 Z" stroke="white" stroke-width="3" fill="none"/><text x="50" y="62" font-family="Orbitron" font-size="20" fill="white" text-anchor="middle" font-weight="bold">RZ</text></svg>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-bar" placeholder="RECHERCHER UN JEU..." oninput="filterGames()">
+                </div>
+            </div>
+            <div class="category-bar">
+                <button class="cat-filter active" onclick="filterByCat('TOUS', this)">TOUS</button>
+                <button class="cat-filter" onclick="filterByCat('SURVIE', this)">SURVIE</button>
+                <button class="cat-filter" onclick="filterByCat('ACTION', this)">ACTION</button>
+                <button class="cat-filter" onclick="filterByCat('SANDBOX', this)">SANDBOX</button>
+                <button class="cat-filter" onclick="filterByCat('SOCIAL', this)">SOCIAL</button>
+            </div>
+        </nav>
+
+        <div class="container"><div class="game-grid" id="grid"></div></div>
+        <footer><p>© 2026 RZ-CORE | PROTOCOLE SÉCURISÉ V3</p></footer>
+    </div>
+
+    <div id="paymentModal" class="payment-modal">
+        <div class="payment-card">
+            <h2 id="game-target" style="text-shadow: 0 0 10px #fff;">FILE_NAME</h2>
+            <div style="border: 1px solid #fff; padding: 20px; margin: 20px 0; font-family: monospace; color: #fff; text-align: left; font-size: 11px; background: rgba(255,255,255,0.05);">
+                > SYSTÈME PRÊT...<br>
+                > CRYPTAGE VALIDÉ...<br>
+                > TÉLÉCHARGEMENT DISPONIBLE.
+            </div>
+            <button class="btn-download" onclick="handleConfirmClick()">LANCER</button>
+            <p onclick="closeModal()" style="color:red; margin-top:20px; cursor:pointer; font-weight:bold; font-size:10px;">[ ANNULER ]</p>
+        </div>
+    </div>
+
+    <script>
+        const games = [
+            { id: 1, title: "Among Us", size: "458 Mo", cat: "SOCIAL", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/945360/header.jpg", url: "https://www.mediafire.com/file/o9ed5i57g8woyg2/among_us_mods_2026.4.7_apkvision.apk/file" },
+            { id: 2, title: "Don't Starve", size: "1.2 Go", cat: "SURVIE", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/219740/header.jpg", url: "https://www.mediafire.com/file/7nieivy8wjrjm99/Dont_Starve_v1.19.21_full_apkvision.apk/file" },
+            { id: 3, title: "Hollow Knight", size: "2.1 Go", cat: "ACTION", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/367520/header.jpg", url: "https://www.mediafire.com/file/moej4jv4ww4mriw/hollow-knight-mobile-1.5.78.11833-mod-apkvision.apk/file" },
+            { id: 4, title: "Geometry Dash", size: "156 Mo", cat: "RYTHME", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/322170/header.jpg", url: "https://www.mediafire.com/file/4np5zg59gf79jkj/Geometry-Dash-2.207-geometrydashmod.org.apk/file" },
+            { id: 5, title: "Stardew Valley", size: "850 Mo", cat: "SIMULATION", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/413150/header.jpg", url: "https://www.mediafire.com/file/8m791tffb2dzum8/Stardew-Valley-v1.6.15.2-full-apkvision.apk/file" },
+            { id: 6, title: "Terraria", size: "612 Mo", cat: "SANDBOX", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/105600/header.jpg", url: "https://www.mediafire.com/file/oj2msi3t7ehaedj/Terraria-v1.4.5.5.3-terariaapk.com.apk/file" },
+            { id: 7, title: "Undertale", size: "320 Mo", cat: "RPG", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/391540/header.jpg", url: "https://www.mediafire.com/file/kz1qbuxrdpil9xt/undertale_v2.0_apkvision.apk/file" },
+            { id: 8, title: "Dead Cells", size: "1.8 Go", cat: "ACTION", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/588650/header.jpg", url: "https://www.mediafire.com/file/e03y40xth2sv4zw/Dead-Cells-v3.5.9-unlocked-apkvision.apk/file" },
+            { id: 9, title: "Minecraft", size: "950 Mo", cat: "SANDBOX", img: "https://upload.wikimedia.org/wikinews/en/7/7a/Minecraft_game_cover.jpeg", url: "https://www.mediafire.com/file/k6bbdippn49iupm/minecraft-apk-latest-version-march-2026.apk/file" },
+            { id: 10, title: "Cuphead", size: "3.5 Go", cat: "ACTION", img: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/268910/header.jpg", url: "https://www.mediafire.com/file/n6g96ceyyle90po/Cuphead-DLC-v1.0.2-full-apkvision.apk/file" }
+        ];
+
+        let curUrl = "";
+        function renderGrid(list) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = list.map((g, i) => `
+                <div class="game-card" style="animation-delay:${i*0.05}s">
+                    <img src="${g.img}" class="game-img">
+                    <div class="game-info">
+                        <span style="font-size:10px; border:1px solid #fff; padding:2px 8px;">${g.cat}</span>
+                        <h3 style="margin:10px 0; font-size:18px;">${g.title}</h3>
+                        <div class="game-size-display">${g.size}</div>
+                        <button class="btn-download" onclick="openPayment(${g.id})">TÉLÉCHARGER</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterByCat(cat, btn) {
+            document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid(cat === 'TOUS' ? games : games.filter(g => g.cat === cat));
+        }
+
+        function filterGames() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderGrid(games.filter(g => g.title.toLowerCase().includes(q)));
+        }
+
+        function openPayment(id) {
+            const g = games.find(x => x.id === id);
+            document.getElementById('game-target').innerText = g.title.toUpperCase();
+            curUrl = g.url;
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
+        function handleConfirmClick() { if(curUrl) { window.open(curUrl, '_blank'); closeModal(); } }
+
+        renderGrid(games);
+
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle {
+            constructor() { this.reset(); }
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 3 + 1; this.speed = Math.random() * 1.5 + 0.2; this.opacity = Math.random(); }
+            update() { this.y -= this.speed; if (this.y < -10) this.reset(); }
+            draw() { ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        for(let i=0; i<150; i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        animate();
+    </script>
+</body>
+</html>
